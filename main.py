@@ -1,29 +1,61 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import Optional
+from datetime import date
+
 app = FastAPI()
 
 
-class Usuario(BaseModel):
-    id: int
-    nome: Optional[str]
-    senha: str
+class Todo(BaseModel):
+    tarefa: str
+    realizada: bool
+    prazo: Optional[date]
 
 
 lista = [
-    Usuario(id=1, nome='caio', senha='minhasenha1'),
-    Usuario(id=2, nome='marcos', senha='minhasenha2'),
-    Usuario(id=3, nome='joao', senha='minhasenha3')
+
 ]
 
 
-@app.post('/usuario')
-def main(usuario: Usuario):
-    lista.append(usuario)
-    return "usuário cadastrado"
+@app.post('/inserir')
+def inserir(todo: Todo):
+    try:
+        lista.append(todo)
+        return {'status': 'sucesso'}
+    except:
+        return {'status': 'erro'}
 
 
-@app.get('/usuarioListar')
-def main():
-    return lista
+@app.post('/listar')
+def listar(opcao: int = 0):
+    if opcao == 0:
+        return lista
+    elif opcao == 1:
+        return list(filter(lambda x: x.realizada == False, lista))
+    elif opcao == 2:
+        return list(filter(lambda x: x.realizada == True, lista))
 
+
+@app.get('/listagemUnica/{id}')
+def listar(id: int):
+    try:
+        return lista[id]
+    except:
+        return {'status': 'tarefa inexistente'}
+
+@app.post('/alterarStatus')
+def alterarStatus(id: int):
+   try:
+       lista[id].realizada = not lista[id].realizada
+       return  {'status': 'sucesso'}
+   except:
+       return {'status': 'erro'}
+
+
+@app.post('/excluir')
+def excluir(id: int):
+    try:
+        del lista[id]
+        return {'status': 'sucesso'}
+    except:
+        return {'status': 'erro'}
