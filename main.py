@@ -1,24 +1,29 @@
 from fastapi import FastAPI
-
+from pydantic import BaseModel
+from typing import Optional
 app = FastAPI()
 
-usuarios = [(1, 'caio', 'minhasenha1'), (2, 'joao', 'minhasenha2')]
+
+class Usuario(BaseModel):
+    id: int
+    nome: Optional[str]
+    senha: str
 
 
-@app.get('/usuario/{id}') # Parâmetros {}
-def main(id):
-    for i in usuarios:
-        if i[0] == id:
-            return i[0]
-
-    return "Não existe esse usuário"
+lista = [
+    Usuario(id=1, nome='caio', senha='minhasenha1'),
+    Usuario(id=2, nome='marcos', senha='minhasenha2'),
+    Usuario(id=3, nome='joao', senha='minhasenha3')
+]
 
 
 @app.post('/usuario')
-def main(nome):
-    for i in usuarios:
-        if i[1] == nome:
-            return i
+def main(usuario: Usuario):
+    lista.append(usuario)
+    return "usuário cadastrado"
 
-    return "Não existe esse usuário"
+
+@app.get('/usuarioListar')
+def main():
+    return lista
 
